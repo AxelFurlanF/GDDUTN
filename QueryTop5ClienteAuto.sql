@@ -4,5 +4,6 @@ AS
 RETURN
 	SELECT TOP 5 Auto_Patente, Chofer_Nombre, Chofer_Apellido, Chofer_Telefono, Cliente_Nombre, Cliente_Apellido, Cliente_Telefono, COUNT(*) as CantidadDeVeces
 	FROM SAPNU_PUAS.Viaje JOIN SAPNU_PUAS.Cliente ON Viaje_Cliente=Cliente_Telefono JOIN SAPNU_PUAS.Auto ON Viaje_Auto=Auto_Patente JOIN SAPNU_PUAS.Chofer ON Auto_Chofer=Chofer_Telefono
+	WHERE YEAR(Viaje_Fecha_Hora_Inicio)=@anio AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN @mes1 and @mes2
 	GROUP BY Auto_Patente, Chofer_Nombre, Chofer_Apellido, Chofer_Telefono, Cliente_Nombre, Cliente_Apellido, Cliente_Telefono
 	ORDER BY CantidadDeVeces desc
