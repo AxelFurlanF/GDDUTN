@@ -46,16 +46,18 @@ VALUES ('Administrador',1),('Cliente',1),('Chofer',1)
 --Funcionalidad
 -- SAPNU_PUAS.Funcionalidad
 INSERT INTO SAPNU_PUAS.Funcionalidad(Funcionalidad_Nombre)
-VALUES ('ABM_Rol'),('Registro_Usuario'),('ABM_Cliente'),('ABM_Auto'),('ABM_Chofer'),('Registro_Viajes'),('Generar_rendicion'),('Facturacion_Cliente'),('Listado_Estadistico')
+VALUES ('ABMrol'),('ABMcliente'),('ABMturno'),
+('ABMauto'),('ABMchofer'),('RegistroViaje'),
+('RendicionViaje'),('Facturacion'),('ListadoEstadistico')
 --FuncionalidadxRol
 --Consideraciones: el administrador puede realizar todas las operaciones, el chofer sólo puede registrar un viaje, el cliente solo podrá revisar su factura
 -- SAPNU_PUAS.Funcionalidad_x_Rol
 INSERT INTO SAPNU_PUAS.Funcionalidad_x_Rol(Rol_Codigo,Funcionalidad_Codigo)
 SELECT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Administrador'),Funcionalidad_Codigo FROM SAPNU_PUAS.Funcionalidad
 UNION
-SELECT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Cliente'),Funcionalidad_Codigo FROM SAPNU_PUAS.Funcionalidad WHERE Funcionalidad_Nombre='Facturacion_Cliente'
+SELECT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Cliente'),Funcionalidad_Codigo FROM SAPNU_PUAS.Funcionalidad WHERE Funcionalidad_Nombre='Facturacion'
 UNION
-SELECT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Chofer'),Funcionalidad_Codigo FROM SAPNU_PUAS.Funcionalidad WHERE Funcionalidad_Nombre='Registro_Viajes'
+SELECT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Chofer'),Funcionalidad_Codigo FROM SAPNU_PUAS.Funcionalidad WHERE Funcionalidad_Nombre='RegistroViaje'
 
 --Usuarios Clientes
 --Consideraciones: ya que usamos el teléfono del cliente como clave principal, la misma será su usuario y clave.
