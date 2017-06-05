@@ -1165,6 +1165,29 @@ BEGIN
 END
 GO
 
+CREATE FUNCTION SAPNU_PUAS.top5recaudacion (@anio int, @mes1 int, @mes2 int)
+RETURNS TABLE
+AS
+RETURN
+	SELECT TOP 5 SUM(Rendicion_Importe) as RecaudacionTotal, Chofer_Apellido, Chofer_Telefono, Chofer_Mail
+	FROM SAPNU_PUAS.Chofer JOIN SAPNU_PUAS.Rendicion ON Rendicion_Chofer=Chofer_Telefono
+	WHERE YEAR(Rendicion_Fecha)=@anio AND MONTH(Rendicion_Fecha) BETWEEN @mes1 and @mes2
+	GROUP BY Chofer_Apellido, Chofer_Telefono, Chofer_Mail
+	ORDER BY SUM (Rendicion_Importe) DESC;
+GO
+
+
+CREATE FUNCTION SAPNU_PUAS.top5ClienteAuto (@anio int, @mes1 int, @mes2 int)
+RETURNS TABLE
+AS
+RETURN
+	SELECT TOP 5 Auto_Patente, Chofer_Nombre, Chofer_Apellido, Chofer_Telefono, Cliente_Nombre, Cliente_Apellido, Cliente_Telefono, COUNT(*) as CantidadDeVeces
+	FROM SAPNU_PUAS.Viaje JOIN SAPNU_PUAS.Cliente ON Viaje_Cliente=Cliente_Telefono JOIN SAPNU_PUAS.Auto ON Viaje_Auto=Auto_Patente JOIN SAPNU_PUAS.Chofer ON Auto_Chofer=Chofer_Telefono
+	WHERE YEAR(Viaje_Fecha_Hora_Inicio)=@anio AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN @mes1 and @mes2
+	GROUP BY Auto_Patente, Chofer_Nombre, Chofer_Apellido, Chofer_Telefono, Cliente_Nombre, Cliente_Apellido, Cliente_Telefono
+	ORDER BY CantidadDeVeces desc
+GO
+
 
 CREATE FUNCTION SAPNU_PUAS.calcular_importe (@cliente_telefono numeric(18,0), @periodo_inicio datetime, @periodo_fin datetime)
 RETURNS TABLE
