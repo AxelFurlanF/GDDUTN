@@ -142,7 +142,7 @@ CREATE TABLE SAPNU_PUAS.Turno (
 -- Table: Usuario
 CREATE TABLE SAPNU_PUAS.Usuario (
     Usuario_Username varchar(50)  NOT NULL,
-    Usuario_Password varchar(255)  NOT NULL,
+    Usuario_Password varbinary(255)  NOT NULL,
     Usuario_Reintentos smallint  NOT NULL,
     Usuario_Activo tinyint  NOT NULL,
     CONSTRAINT Usuario_pk PRIMARY KEY  (Usuario_Username)
@@ -1039,7 +1039,7 @@ BEGIN
 	IF (isnull(@idPersona,0) = 0)
 		BEGIN
 			BEGIN TRY
-				INSERT INTO SAPNU_PUAS.Usuario (Usuario_Username,Usuario_Password,Usuario_Reintentos,Usuario_Activo) values (@telefono,HASHBYTES('SHA2_256',CAST(@telefono AS varchar)),0,1);
+				INSERT INTO SAPNU_PUAS.Usuario (Usuario_Username,Usuario_Password,Usuario_Reintentos,Usuario_Activo) values (@telefono,HashBytes('SHA2_256',convert(varchar(255), @telefono)),0,1);
 				INSERT INTO SAPNU_PUAS.Persona (Persona_Telefono,Persona_Username) values (@telefono,@telefono);
 				INSERT INTO SAPNU_PUAS.Chofer (Chofer_Activo,Chofer_Apellido,Chofer_Direccion,Chofer_Dni,Chofer_Fecha_Nac,Chofer_Mail,Chofer_Nombre,Chofer_Persona,Chofer_Telefono) values (@activo,@apellido,@direccion,@dni,@fechaNacimiento,@mail,@nombre,@@IDENTITY,@telefono);
 			END TRY
@@ -1120,7 +1120,7 @@ BEGIN
 	IF (isnull(@idPersona,0) = 0)
 		BEGIN
 			BEGIN TRY
-				INSERT INTO SAPNU_PUAS.Usuario (Usuario_Username,Usuario_Password,Usuario_Reintentos,Usuario_Activo) values (@telefono,HASHBYTES('SHA2_256',CAST(@telefono AS varchar)),0,1);
+				INSERT INTO SAPNU_PUAS.Usuario (Usuario_Username,Usuario_Password,Usuario_Reintentos,Usuario_Activo) values (@telefono,HashBytes('SHA2_256',convert(varchar(255), @telefono)),0,1);
 				INSERT INTO SAPNU_PUAS.Persona (Persona_Telefono,Persona_Username) values (@telefono,@telefono);
 				INSERT INTO SAPNU_PUAS.Cliente (Cliente_Activo,Cliente_Apellido,Cliente_Direccion,Cliente_Dni,Cliente_Fecha_Nac,Cliente_Mail,Cliente_Nombre,Cliente_Persona,Cliente_Telefono,Cliente_Codigo_Postal) values (@activo,@apellido,@direccion,@dni,@fechaNacimiento,@mail,@nombre,@@IDENTITY,@telefono,@codPostal);
 			END TRY
@@ -1253,7 +1253,7 @@ INSERT INTO SAPNU_PUAS.Usuario(Usuario_Username, Usuario_Password, Usuario_Activ
 SELECT DISTINCT Cliente_Telefono, HashBytes('SHA2_256',convert(varchar(255), Cliente_Telefono)), 1, 0 FROM gd_esquema.Maestra
 --Insertar Rol
 INSERT INTO SAPNU_PUAS.Rol_x_Usuario(Rol_Codigo, Usuario_Username)
-SELECT DISTINCT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Cliente'), Cliente_Telefono FROM SAPNU_PUAS.Cliente
+SELECT DISTINCT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Cliente'), Cliente_Telefono FROM gd_esquema.Maestra
 
 --Usuarios Choferes
 --Consideraciones: ya que usamos el teléfono del chofer como clave principal, la misma será su usuario y clave.
@@ -1262,7 +1262,7 @@ INSERT INTO SAPNU_PUAS.Usuario(Usuario_Username, Usuario_Password, Usuario_Activ
 SELECT DISTINCT Chofer_Telefono, HashBytes('SHA2_256',convert(varchar(255), Chofer_Dni)), 1, 0 FROM gd_esquema.Maestra
 --Insertar Rol
 INSERT INTO SAPNU_PUAS.Rol_x_Usuario(Rol_Codigo, Usuario_Username)
-SELECT DISTINCT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Chofer'), Chofer_Dni FROM SAPNU_PUAS.Chofer
+SELECT DISTINCT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Chofer'), Chofer_Dni FROM gd_esquema.Maestra
 
 --Usuario Admin
 -- SAPNU_PUAS.Usuario
