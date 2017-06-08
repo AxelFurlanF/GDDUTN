@@ -309,7 +309,7 @@ BEGIN
 					   OR A.Viaje_Fecha_Hora_Fin BETWEEN B.Viaje_Fecha_Hora_Inicio AND B.Viaje_Fecha_Hora_Fin)))
 	BEGIN
 	--SE RECHAZA VIAJE
-		PRINT('Las horas de inicio y fin a insertar no son v·lidas. Corroborar que el inicio y fin del viaje sea dentro del mismo turno, y que para un mismo cliente no exista mas de un viaje en el mismo momento.');
+		PRINT('Las horas de inicio y fin a insertar no son v√°lidas. Corroborar que el inicio y fin del viaje sea dentro del mismo turno, y que para un mismo cliente no exista mas de un viaje en el mismo momento.');
 		ROLLBACK;
 	END
 	ELSE
@@ -426,18 +426,14 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-	--Se encuentran turnos con horarios superpuestos, entonces se envÌa un mensaje indicando dicho suceso
+	--Se encuentran turnos con horarios superpuestos, entonces se env√≠a un mensaje indicando dicho suceso
 		SET @codOp = 1;
 		SET @resultado = 'Se superponen los horarios con otro/s turno/s';
 	END;
 END;
 
 GO
--- =============================================
--- Author:		Martin Maccio
--- Create date: 09/05/2017
--- Description:	SP que da de alta un turno
--- =============================================
+
 CREATE PROCEDURE [SAPNU_PUAS].[sp_turno_modif]
 	-- Add the parameters for the stored procedure here
 	@codigo int,
@@ -455,7 +451,11 @@ BEGIN
 
 	SET NOCOUNT ON;
 	
-    SET @validHora = SAPNU_PUAS.is_available_hour_range(@horaInicio,@horaFin,@codigo);
+	/*Se valida la hora √∫nicamente si se va a modificar un turno que va a estar activo*/
+	IF(@activo = 1)
+		SET @validHora = SAPNU_PUAS.is_available_hour_range(@horaInicio,@horaFin,@codigo);
+	ELSE
+		SET @validHora = 0;
 
 	--Se valida que no haya ningun turno con el que se superpongan los horarios
 	IF(@validHora = 0)
@@ -480,20 +480,15 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-	--Se encuentran turnos con horarios superpuestos, entonces se envÌa un mensaje indicando dicho suceso
+	--Se encuentran turnos con horarios superpuestos, entonces se env√≠a un mensaje indicando dicho suceso
 		SET @codOp = 1;
 		SET @resultado = 'Se superponen los horarios con otro/s turno/s';
 	END;
 END;
 
 GO
--- ==============================================================================
--- Author:		Martin Maccio
--- Create date: 11/05/2017
--- Description:	SP que realiza alta de un automovil.
---              En caso de ser exitosa el alta retorna 0, en caso contrario
---              retornara un codigo de error y un mensaje descriptivo del error.
--- ==============================================================================
+
+
 CREATE PROCEDURE [SAPNU_PUAS].[sp_auto_alta] 
 
 	@marca int, 
@@ -574,7 +569,7 @@ BEGIN
 	IF(@validDuplicado = 0)
 	BEGIN
 		--Se verifica que un auto no tenga asignado un chofer que ya tenga un coche activo. Esta verificacion sirve en caso de que se cambie el chofer del auto.
-		--Se agrega la validaciÛn contra la patente(vieja en caso de que se haya modificado por una nueva), para que se excluya de la busqueda el registro que se esta alterando. 
+		--Se agrega la validaci√≥n contra la patente(vieja en caso de que se haya modificado por una nueva), para que se excluya de la busqueda el registro que se esta alterando. 
 		IF(EXISTS(SELECT Auto_Chofer FROM SAPNU_PUAS.AUTO WHERE Auto_Chofer = @chofer AND Auto_Activo = 1 AND Auto_Patente <> @patente))
 		BEGIN
 			SET @codOp = 2;
@@ -692,11 +687,11 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	SET @codOp = 0;
-	--Verifica que el viaje se realice dentro del mismo dÌa
+	--Verifica que el viaje se realice dentro del mismo d√≠a
 	IF((SELECT DATEPART(DAY, @viaje_hora_ini)) <> (SELECT DATEPART(DAY, @viaje_hora_fin)))
 	BEGIN
 		SET @codOp = 1;
-		SET @resultado = 'La hora de inicio y fin del viaje deben corresponder al mismo dÌa.';
+		SET @resultado = 'La hora de inicio y fin del viaje deben corresponder al mismo d√≠a.';
 
 	END
 	ELSE IF(SAPNU_PUAS.exist_car(@viaje_auto) = 0)
@@ -766,7 +761,7 @@ BEGIN
     
 	SET NOCOUNT ON;
 
---SE VERIFICA QUE NO EXISTA UNA RENDICI”N PARA EL MISMO CHOFER EL MISMO DIA Y TURNO--
+--SE VERIFICA QUE NO EXISTA UNA RENDICI√ìN PARA EL MISMO CHOFER EL MISMO DIA Y TURNO--
 		IF(SELECT 
 		count(1) 
 		from SAPNU_PUAS.Rendicion
@@ -1199,7 +1194,7 @@ GO
 
 
 /*
-Vista para revisar facturaciÛn de un chofer y dia especificos para constrastarla con su rendiciÛn del mismo dÌa: datos distintos
+Vista para revisar facturaci√≥n de un chofer y dia especificos para constrastarla con su rendici√≥n del mismo d√≠a: datos distintos
 go
 CREATE VIEW c1 as 
 SELECT Viaje_Cant_Kilometros*(SELECT t.Turno_Valor_Kilometro FROM SAPNU_PUAS.Turno t WHERE t.Turno_Codigo=v.Viaje_Turno) 
@@ -1237,7 +1232,7 @@ VALUES ('ABMrol'),('ABMcliente'),('ABMturno'),
 ('ABMauto'),('ABMchofer'),('RegistroViaje'),
 ('RendicionViaje'),('Facturacion'),('ListadoEstadistico')
 --FuncionalidadxRol
---Consideraciones: el administrador puede realizar todas las operaciones, el chofer sÛlo puede registrar un viaje, el cliente solo podr· revisar su factura
+--Consideraciones: el administrador puede realizar todas las operaciones, el chofer s√≥lo puede registrar un viaje, el cliente solo podr√° revisar su factura
 -- SAPNU_PUAS.Funcionalidad_x_Rol
 INSERT INTO SAPNU_PUAS.Funcionalidad_x_Rol(Rol_Codigo,Funcionalidad_Codigo)
 SELECT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Administrador'),Funcionalidad_Codigo FROM SAPNU_PUAS.Funcionalidad
@@ -1247,7 +1242,7 @@ UNION
 SELECT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Chofer'),Funcionalidad_Codigo FROM SAPNU_PUAS.Funcionalidad WHERE Funcionalidad_Nombre='RegistroViaje'
 
 --Usuarios Clientes
---Consideraciones: ya que usamos el telÈfono del cliente como clave principal, la misma ser· su usuario y clave.
+--Consideraciones: ya que usamos el tel√©fono del cliente como clave principal, la misma ser√° su usuario y clave.
 -- SAPNU_PUAS.Usuario
 INSERT INTO SAPNU_PUAS.Usuario(Usuario_Username, Usuario_Password, Usuario_Activo, Usuario_Reintentos)
 SELECT DISTINCT Cliente_Telefono, HashBytes('SHA2_256',convert(varchar(255), Cliente_Telefono)), 1, 0 FROM gd_esquema.Maestra
@@ -1256,7 +1251,7 @@ INSERT INTO SAPNU_PUAS.Rol_x_Usuario(Rol_Codigo, Usuario_Username)
 SELECT DISTINCT (SELECT Rol_Codigo FROM SAPNU_PUAS.Rol WHERE Rol_Nombre='Cliente'), Cliente_Telefono FROM gd_esquema.Maestra
 
 --Usuarios Choferes
---Consideraciones: ya que usamos el telÈfono del chofer como clave principal, la misma ser· su usuario y clave.
+--Consideraciones: ya que usamos el tel√©fono del chofer como clave principal, la misma ser√° su usuario y clave.
 -- SAPNU_PUAS.Usuario
 INSERT INTO SAPNU_PUAS.Usuario(Usuario_Username, Usuario_Password, Usuario_Activo, Usuario_Reintentos)
 SELECT DISTINCT Chofer_Telefono, HashBytes('SHA2_256',convert(varchar(255), Chofer_Dni)), 1, 0 FROM gd_esquema.Maestra
@@ -1300,13 +1295,13 @@ SELECT DISTINCT Auto_Marca FROM gd_esquema.Maestra
 INSERT INTO SAPNU_PUAS.Turno (Turno_Descripcion, Turno_Hora_Inicio, Turno_Hora_Fin, Turno_Precio_Base, Turno_Valor_Kilometro, Turno_Activo)
 SELECT DISTINCT Turno_Descripcion, Turno_Hora_Inicio, Turno_Hora_Fin, Turno_Precio_Base, Turno_Valor_Kilometro, 1 FROM gd_esquema.Maestra
 --Auto
---Consideraciones: el turno del chofer es el correspondiente al ˙ltimo viaje que realizÛ, ya que se asume que ese es el ˙ltimo valor que tiene asignado
+--Consideraciones: el turno del chofer es el correspondiente al √∫ltimo viaje que realiz√≥, ya que se asume que ese es el √∫ltimo valor que tiene asignado
 -- SAPNU_PUAS.Auto
 INSERT INTO SAPNU_PUAS.Auto (Auto_Patente, Auto_Marca, Auto_Licencia, Auto_Rodado, Auto_Modelo, Auto_Chofer, Auto_Activo, Auto_Turno)
 SELECT DISTINCT Auto_Patente, m1.Marca_Codigo, Auto_Licencia, Auto_Rodado, Auto_Modelo, Chofer_Telefono, 1, (SELECT TOP 1 t.Turno_Codigo FROM SAPNU_PUAS.Turno t, gd_esquema.Maestra m WHERE t.Turno_Descripcion=m.Turno_Descripcion AND m.Auto_Patente=t1.Auto_Patente ORDER BY m.Viaje_Fecha DESC) FROM gd_esquema.Maestra AS t1 JOIN SAPNU_PUAS.Marca m1 ON t1.Auto_Marca=m1.Marca_Nombre
 
 --Viajes
---Consideraciones: la fecha y hora de finalizaciÛn del viaje es la misma que de finalizaciÛn del turno correspondiente
+--Consideraciones: la fecha y hora de finalizaci√≥n del viaje es la misma que de finalizaci√≥n del turno correspondiente
 -- SAPNU_PUAS.Viaje
 INSERT INTO SAPNU_PUAS.Viaje (Viaje_Cant_Kilometros, Viaje_Fecha_Hora_Inicio, Viaje_Fecha_Hora_Fin, Viaje_Chofer, Viaje_Auto, Viaje_Turno, Viaje_Cliente)
 SELECT DISTINCT Viaje_Cant_Kilometros, Viaje_Fecha,
@@ -1324,7 +1319,7 @@ Viaje_Fecha)
  FROM gd_esquema.Maestra t1 JOIN SAPNU_PUAS.Turno t2 ON t1.Turno_Descripcion=t2.Turno_Descripcion ORDER BY Viaje_Fecha DESC
 
 --Factura
---Consideraciones: la app mostrar· los viajes correspodientes a la factura a travÈs de un SP a travÈs de las fechas de inicio y fin de factura. No se registr· de forma explÌcita que viajes corresponden a quÈ factura, pero si estar·n vinculados por lo anterior.
+--Consideraciones: la app mostrar√° los viajes correspodientes a la factura a trav√©s de un SP a trav√©s de las fechas de inicio y fin de factura. No se registr√° de forma expl√≠cita que viajes corresponden a qu√© factura, pero si estar√°n vinculados por lo anterior.
 SET IDENTITY_INSERT SAPNU_PUAS.Factura ON
 -- SAPNU_PUAS.Factura
 INSERT INTO SAPNU_PUAS.Factura (Factura_Nro, Factura_Fecha, Factura_Fecha_Inicio, Factura_Fecha_Fin, Factura_Importe, Factura_Cliente)
@@ -1342,11 +1337,11 @@ FROM SAPNU_PUAS.Viaje JOIN SAPNU_PUAS.Factura ON Factura_Cliente=Viaje_Cliente
 WHERE Viaje_Fecha_Hora_Inicio BETWEEN Factura_Fecha_Inicio AND Factura_Fecha_Fin
 
 --Rendicion
-/*Consideraciones: las rendiciones correspondientes a n˙meros,fechas y turnos iguales ser·n agrupadas
+/*Consideraciones: las rendiciones correspondientes a n√∫meros,fechas y turnos iguales ser√°n agrupadas
 en una igual con la suma total de sus importes.
-Aunque el enunciado declare que un chofer rendir· 1 sola rendiciÛn en el dÌa,
-notamos que en la base de datos, varios choferes tenÌan m·s de 1 rendiciÛn en un mismo dÌa,
-por lo que se tomÛ la decisiÛn de migrarlas de igual forma;
+Aunque el enunciado declare que un chofer rendir√° 1 sola rendici√≥n en el d√≠a,
+notamos que en la base de datos, varios choferes ten√≠an m√°s de 1 rendici√≥n en un mismo d√≠a,
+por lo que se tom√≥ la decisi√≥n de migrarlas de igual forma;
 ya que incluso correspondian a turnos distintos.
 */
 SET IDENTITY_INSERT SAPNU_PUAS.Rendicion ON
