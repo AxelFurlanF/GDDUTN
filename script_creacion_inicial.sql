@@ -305,15 +305,29 @@ BEGIN
 			@horaFin int;
 
 	SELECT @horaini = Turno_Hora_Inicio, @horaFin = Turno_Hora_Fin
-	  FROM SAPNU_PUAS.turno
-     WHERE Turno_Activo = 1
+				FROM SAPNU_PUAS.turno
+		 WHERE Turno_Activo = 1
 	   AND Turno_Codigo = @turno;
+	
+	IF(@horaini <> NULL AND @horaFin <> NULL)
 
-	IF((@iniHour BETWEEN @horaini AND @horaFin) AND
-	  ((@endHour BETWEEN @horaini AND @horaFin)))
-	  SET @Result = 1;
+	BEGIN
+
+		IF(@iniHour >= @horaini AND @iniHour < @horaFin AND @endHour > @horaini AND @endHour <= @horaFin)
+		BEGIN
+			SET @Result = 1;
+		END
+		ELSE
+		BEGIN
+			SET @Result = 0;
+		END;
+
+	END
+
 	ELSE
-	  SET @Result = 0;
+	BEGIN
+		SET @Result = 0;
+	END;
 
 	RETURN @Result;
 
@@ -693,7 +707,7 @@ BEGIN
 	SET NOCOUNT ON;
 	SET @codOp = 0;
 	--Verifica que el viaje se realice dentro del mismo día
-	IF((SELECT DATEPART(DAY, @viaje_hora_ini)) <> (SELECT DATEPART(DAY, @viaje_hora_fin)))
+	IF((DATEPART(DAY, @viaje_hora_ini)) <> (DATEPART(DAY, @viaje_hora_fin)) OR (DATEPART(MONTH, @viaje_hora_ini)) <> (DATEPART(MONTH, @viaje_hora_fin)) OR (DATEPART(YEAR, @viaje_hora_ini)) <> (DATEPART(YEAR, @viaje_hora_fin)))
 	BEGIN
 		SET @codOp = 1;
 		SET @resultado = 'La hora de inicio y fin del viaje deben corresponder al mismo día.';
@@ -718,11 +732,12 @@ BEGIN
 		SET @codOp = 5;
 		SET @resultado = 'El cliente ingresado no se encuentra registrado';
 	END
+	/*EN REVISION
 	ELSE IF(SAPNU_PUAS.match_turn_hour(DATEPART(HOUR, @viaje_hora_ini),DATEPART(HOUR, @viaje_hora_fin),@viaje_turno) = 0)
 	BEGIN
 		SET @codOp = 6;
 		SET @resultado = 'Los horarios ingresados no corresponden al turno elegido';
-	END
+	END*/
 	/*Se verifica que no exista registrado un viaje en la misma fecha y hora*/
 	ELSE IF(EXISTS(SELECT * 
 			 FROM SAPNU_PUAS.VIAJE A
