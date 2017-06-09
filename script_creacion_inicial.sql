@@ -1037,6 +1037,42 @@ ON F.Factura_Cliente = C.Cliente_Telefono
  group by C.Cliente_Apellido,C.Cliente_Nombre,C.Cliente_Mail
  order by sum(F.Factura_Importe) desc
 
+
+GO
+-- ==============================================================================
+-- Author:		
+-- Create date: 
+-- Description:	SP que revisa si un usuario tiene asignado un rol. En caso de no
+--				tenerlo, se lo asigna
+-- ==============================================================================
+CREATE PROCEDURE [SAPNU_PUAS].[sp_asignar_rol] 
+
+	@username varchar(50), 
+	@codigoRol int,
+	@codOp int out,
+	@resultado varchar(255) out
+AS
+BEGIN
+	
+	IF (EXISTS(SELECT * FROM SAPNU_PUAS.Rol_x_Usuario WHERE Rol_Codigo = @codigoRol AND Usuario_Username =@username ))
+		BEGIN
+			SET @codOp = 1;
+			SET @resultado = 'Ya se encuentra asignado';
+		END;
+	ELSE
+		BEGIN TRY
+			INSERT INTO SAPNU_PUAS.Rol_x_Usuario VALUES (@codigoRol,@username);
+		END TRY
+		BEGIN CATCH
+			SET @codOp = 1;
+			SET @resultado = ERROR_MESSAGE();
+		END CATCH
+
+	SET @codOp = 0;
+	SET @resultado = 'ok';
+
+END; 
+ 
  GO
 
 -- ========================================================
