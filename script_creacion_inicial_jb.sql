@@ -1028,12 +1028,16 @@ BEGIN
 		where 
 		Rendicion_Chofer = @chofer_telefono
 		and CONVERT(date,Rendicion_Fecha) = CONVERT(date,@fecha)
-		and Rendicion_Turno = @turno_codigo) > 0
+		and Rendicion_Turno = @turno_codigo) > 0 or 
+		(SELECT Turno_Activo from SAPNU_PUAS.Turno where Turno_Codigo = @turno_codigo) = 0 or
+		(SELECT Chofer_Activo from SAPNU_PUAS.Chofer where Chofer_Telefono = @chofer_telefono) = 0
 
 	BEGIN
 			SET @codOp = 1;
 			SET @resultado = 
-			'Ya existe una rendicion registrada en la misma fecha para el chofer ingresado para ese turno';
+			'Ocurrió un error en validaciones previas. Chequear que la rendicion no haya sido hecha previamente y
+			que el chofer y el turno estén activos.';
+	
 	END
 	
 	ELSE
