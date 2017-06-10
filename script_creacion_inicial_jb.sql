@@ -1179,8 +1179,8 @@ END;
 GO
 
 -- =======================================================================
--- Description:	Función que dado un año y un trimestre devuelve los 5 
---				viajes más largos del período.
+-- Description:	Función que dado un año y un trimestre devuelve los 5 choferes 
+--				con los viajes más largos del período.
 -- =======================================================================
 
 IF OBJECT_ID('SAPNU_PUAS.viajes_mas_largos') IS NOT NULL
@@ -1196,15 +1196,16 @@ RETURN
 SELECT top 5
 C.Chofer_Nombre,
 C.Chofer_Apellido,
+C.Chofer_Telefono,
 C.Chofer_Mail,
-max(V.Viaje_Cant_Kilometros) AS Cant_Kms    
+max(V.Viaje_Cant_Kilometros) AS Viaje_Cant_Kms    
 FROM SAPNU_PUAS.Viaje V
 JOIN SAPNU_PUAS.Chofer C
 ON V.Viaje_Chofer = C.Chofer_Telefono
 WHERE 
 YEAR(V.Viaje_Fecha_Hora_Inicio) = @anio and
 MONTH(V.Viaje_Fecha_Hora_Inicio) BETWEEN @mes_inicio and @mes_fin
-group by C.Chofer_Nombre, C.Chofer_Apellido, C.Chofer_Mail
+group by C.Chofer_Nombre, C.Chofer_Apellido, C.Chofer_Mail,C.Chofer_Telefono
 order by max(V.Viaje_Cant_Kilometros) desc
 
 GO
@@ -1227,9 +1228,10 @@ RETURN
 
 select
 top 5
-C.Cliente_Apellido Apellido,
-C.Cliente_Nombre Nombre,
-C.Cliente_Mail Mail,
+C.Cliente_Apellido,
+C.Cliente_Nombre,
+C.Cliente_Mail,
+C.Cliente_Telefono,
 sum(F.Factura_Importe) as Importe
 
 
@@ -1241,7 +1243,7 @@ ON F.Factura_Cliente = C.Cliente_Telefono
  WHERE
  YEAR(F.Factura_Fecha) = @anio and
  MONTH(F.Factura_Fecha) BETWEEN @mes_inicio and @mes_fin
- group by C.Cliente_Apellido,C.Cliente_Nombre,C.Cliente_Mail
+ group by C.Cliente_Apellido,C.Cliente_Nombre,C.Cliente_Mail,C.Cliente_Telefono
  order by sum(F.Factura_Importe) desc
 
  GO
