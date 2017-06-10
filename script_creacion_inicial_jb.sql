@@ -830,7 +830,7 @@ BEGIN
 	RETURN (SELECT COUNT(*) 
 			 FROM SAPNU_PUAS.Chofer
 		   WHERE Chofer_Activo = 1
-		     AND Chofer_Telefono = @TEL);
+		     AND Chofer_Telefono = @Telefono);
 
 END;
 
