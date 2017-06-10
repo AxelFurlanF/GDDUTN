@@ -967,10 +967,10 @@ BEGIN
 
 -----Declaracion de Variables-----
 	DECLARE 
-	@turno_precio numeric(18),
-	@resultado_final numeric(18),
+	@turno_precio numeric(18,2),
+	@resultado_final numeric(18,2),
 	@cant_kilometros numeric(18),
-	@precio_base numeric(18),
+	@precio_base numeric(18,2),
 	@rendicion_nro numeric(18);
     
 	SET NOCOUNT ON;
