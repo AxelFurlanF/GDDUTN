@@ -1515,22 +1515,22 @@ RETURN
 			  (SELECT TOP 1 Viaje_Auto
 			   FROM SAPNU_PUAS.Viaje
 			   WHERE Viaje_Cliente = C.Cliente_Telefono
-			   AND YEAR(Viaje_Fecha_Hora_Inicio) = 2017
-			   AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN 4 and 6
+			   AND YEAR(Viaje_Fecha_Hora_Inicio) = @anio
+			   AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN @mes1 and @mes2
 			   GROUP BY Viaje_Auto
 			   ORDER BY COUNT(*) DESC) as Auto_Patente,
 			   
 			  (SELECT TOP 1 count(*)
 			   FROM SAPNU_PUAS.Viaje
 			   WHERE Viaje_Cliente = C.Cliente_Telefono
-			   AND YEAR(Viaje_Fecha_Hora_Inicio) = 2017
-			   AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN 4 and 6
+			   AND YEAR(Viaje_Fecha_Hora_Inicio) = @anio
+			   AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN @mes1 and @mes2
 			   GROUP BY Viaje_Auto
 			   ORDER BY COUNT(*) DESC) as Cantidad_Veces_Usado
 			   
 	FROM SAPNU_PUAS.Viaje V
 	JOIN SAPNU_PUAS.Cliente C ON V.Viaje_Cliente=C.Cliente_Telefono 
-	WHERE YEAR(V.Viaje_Fecha_Hora_Inicio)=2017 AND MONTH(V.Viaje_Fecha_Hora_Inicio) BETWEEN 4 and 6
+	WHERE YEAR(V.Viaje_Fecha_Hora_Inicio)=@anio AND MONTH(V.Viaje_Fecha_Hora_Inicio) BETWEEN @mes1 and @mes2
 	GROUP BY C.Cliente_Nombre, C.Cliente_Apellido, C.Cliente_Telefono
 	ORDER BY Cantidad_Veces_Usado desc
 GO
