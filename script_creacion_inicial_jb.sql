@@ -1491,8 +1491,9 @@ RETURN
 GO
 
 -- =======================================================================
--- Description:	Función que obtiene los 5 autos/choferes con mayores 
---				coincidencias con el mismo cliente.
+-- Description:	Función que obtiene los 5 clientes que mas veces utilizaron 
+--				el mismo automovil en sus viajes, mostrando dicho automovil
+--				y la cantidad de veces que lo usaron.
 -- =======================================================================
 
 IF OBJECT_ID('SAPNU_PUAS.top5ClienteAuto') IS NOT NULL
@@ -1505,11 +1506,33 @@ CREATE FUNCTION SAPNU_PUAS.top5ClienteAuto (@anio int, @mes1 int, @mes2 int)
 RETURNS TABLE
 AS
 RETURN
-	SELECT TOP 5 Auto_Patente, Chofer_Nombre, Chofer_Apellido, Chofer_Telefono, Cliente_Nombre, Cliente_Apellido, Cliente_Telefono, COUNT(*) as CantidadDeVeces
-	FROM SAPNU_PUAS.Viaje JOIN SAPNU_PUAS.Cliente ON Viaje_Cliente=Cliente_Telefono JOIN SAPNU_PUAS.Auto ON Viaje_Auto=Auto_Patente JOIN SAPNU_PUAS.Chofer ON Auto_Chofer=Chofer_Telefono
-	WHERE YEAR(Viaje_Fecha_Hora_Inicio)=@anio AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN @mes1 and @mes2
-	GROUP BY Auto_Patente, Chofer_Nombre, Chofer_Apellido, Chofer_Telefono, Cliente_Nombre, Cliente_Apellido, Cliente_Telefono
-	ORDER BY CantidadDeVeces desc
+	SELECT TOP 5  C.Cliente_Nombre,
+	
+			  C.Cliente_Apellido,
+			  
+			  C.Cliente_Telefono,
+			  
+			  (SELECT TOP 1 Viaje_Auto
+			   FROM SAPNU_PUAS.Viaje
+			   WHERE Viaje_Cliente = C.Cliente_Telefono
+			   AND YEAR(Viaje_Fecha_Hora_Inicio) = 2017
+			   AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN 4 and 6
+			   GROUP BY Viaje_Auto
+			   ORDER BY COUNT(*) DESC) as Auto_Patente,
+			   
+			  (SELECT TOP 1 count(*)
+			   FROM SAPNU_PUAS.Viaje
+			   WHERE Viaje_Cliente = C.Cliente_Telefono
+			   AND YEAR(Viaje_Fecha_Hora_Inicio) = 2017
+			   AND MONTH(Viaje_Fecha_Hora_Inicio) BETWEEN 4 and 6
+			   GROUP BY Viaje_Auto
+			   ORDER BY COUNT(*) DESC) as Cantidad_Veces_Usado
+			   
+	FROM SAPNU_PUAS.Viaje V
+	JOIN SAPNU_PUAS.Cliente C ON V.Viaje_Cliente=C.Cliente_Telefono 
+	WHERE YEAR(V.Viaje_Fecha_Hora_Inicio)=2017 AND MONTH(V.Viaje_Fecha_Hora_Inicio) BETWEEN 4 and 6
+	GROUP BY C.Cliente_Nombre, C.Cliente_Apellido, C.Cliente_Telefono
+	ORDER BY Cantidad_Veces_Usado desc
 GO
 
 -- =======================================================================
