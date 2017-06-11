@@ -918,37 +918,31 @@ BEGIN
 	SET @codOp = 0;
 	--Verifica que el viaje se realice dentro del mismo día
 	IF((DATEPART(DAY, @viaje_hora_ini)) <> (DATEPART(DAY, @viaje_hora_fin)) OR (DATEPART(MONTH, @viaje_hora_ini)) <> (DATEPART(MONTH, @viaje_hora_fin)) OR (DATEPART(YEAR, @viaje_hora_ini)) <> (DATEPART(YEAR, @viaje_hora_fin)))
-	BEGIN
-		SET @codOp = 1;
-		SET @resultado = 'La hora de inicio y fin del viaje deben corresponder al mismo día.';
-	END
+		BEGIN
+			SET @codOp = 1;
+			SET @resultado = 'La hora de inicio y fin del viaje deben corresponder al mismo día.';
+		END
 	ELSE IF(SAPNU_PUAS.exist_car(@viaje_auto) = 0)
-	BEGIN
-		SET @codOp = 2;
-		SET @resultado = 'No existe un auto activo con la patente ingresada';
-	END
+		BEGIN
+			SET @codOp = 2;
+			SET @resultado = 'No existe un auto activo con la patente ingresada';
+		END
 	ELSE IF(SAPNU_PUAS.exist_chofer(@viaje_chofer) = 0)
-	BEGIN
-		SET @codOp = 3;
-		SET @resultado = 'El chofer ingresado no se encuentra activo en el sistema';
-	END
+		BEGIN
+			SET @codOp = 3;
+			SET @resultado = 'El chofer ingresado no se encuentra activo en el sistema';
+		END
 	ELSE IF(SAPNU_PUAS.exist_turn(@viaje_turno) = 0)
-	BEGIN
-		SET @codOp = 4;
-		SET @resultado = 'No existe el turno ingresado';
-	END
+		BEGIN
+			SET @codOp = 4;
+			SET @resultado = 'No existe el turno ingresado';
+		END
 	ELSE IF(SAPNU_PUAS.exist_client(@viaje_cliente) = 0)
-	BEGIN
-		SET @codOp = 5;
-		SET @resultado = 'El cliente ingresado no se encuentra registrado';
-	END
-	/*EN REVISION
-	ELSE IF(SAPNU_PUAS.match_turn_hour(DATEPART(HOUR, @viaje_hora_ini),DATEPART(HOUR, @viaje_hora_fin),@viaje_turno) = 0)
-	BEGIN
-		SET @codOp = 6;
-		SET @resultado = 'Los horarios ingresados no corresponden al turno elegido';
-	END*/
-	/*Se verifica que no exista registrado un viaje en la misma fecha y hora*/
+		BEGIN
+			SET @codOp = 5;
+			SET @resultado = 'El cliente ingresado no se encuentra registrado';
+		END
+	/*Se verifica que no exista registrado un viaje en la misma fecha y hora para el cliente*/
 	ELSE IF(EXISTS(SELECT * 
 			 FROM SAPNU_PUAS.VIAJE A
 			WHERE A.Viaje_Cliente = @viaje_cliente
@@ -958,10 +952,25 @@ BEGIN
 				  )
 		   )
 
-	BEGIN
-		SET @codOp = 7;
-		SET @resultado = 'Ya se registro un viaje realizado dentro del rango horario ingresado';
-	END;
+		BEGIN
+			SET @codOp = 7;
+			SET @resultado = 'Ya se registro un viaje realizado dentro del rango horario ingresado para el cliente seleccionado';
+		END;
+	/*Se verifica que no exista registrado un viaje en la misma fecha y hora para el chofer seleccionado*/
+	ELSE IF(EXISTS(SELECT * 
+				   FROM SAPNU_PUAS.VIAJE A
+			       WHERE A.Viaje_Chofer = @viaje_chofer
+		      AND (     (A.Viaje_Fecha_Hora_Inicio <= @viaje_hora_ini AND @viaje_hora_ini < A.Viaje_Fecha_Hora_Fin)
+					 OR (A.Viaje_Fecha_Hora_Inicio < @viaje_hora_fin AND @viaje_hora_fin <= A.Viaje_Fecha_Hora_Fin)
+				  )
+				  )
+		   )
+
+		BEGIN
+			SET @codOp = 7;
+			SET @resultado = 'Ya se registro un viaje realizado dentro del rango horario ingresado para el chofer seleccionado';
+		END;
+	
 
 	IF (@codOp = 0)
 	BEGIN
